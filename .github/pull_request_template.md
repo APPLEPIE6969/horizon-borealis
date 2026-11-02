@@ -6,7 +6,7 @@
 
 ## Kind
 
-<!-- Tick one: it sets the pull request's label (CONTRIBUTING.md "Pull requests"). -->
+<!-- Tick one: it sets the pull request's label. -->
 
 - [ ] parity: Horizon now does what vanilla 26.3 does
 - [ ] bug: a crash or a breakage
@@ -25,7 +25,7 @@
 
 <!-- "none", or for each project you read or copied from: its link at the commit, its license (only MIT,
      BSD-2-Clause, BSD-3-Clause, Apache-2.0, ISC, zlib, 0BSD, MIT-0, Unlicense or CC0-1.0), and what you took.
-     CONTRIBUTING.md "Only original code". -->
+     Only original code: no bytes copied from projects whose license is not in that list. -->
 
 ## Self-check
 
@@ -35,5 +35,4 @@
 
 <!-- For anything players see: before and after. Delete this section otherwise. -->
 
-<!-- Please tick "Allow edits by maintainers": we push small fixups ourselves instead of a round trip.
-     See CONTRIBUTING.md. -->
+<!-- Please tick "Allow edits by maintainers": we push small fixups ourselves instead of a round trip. -->
