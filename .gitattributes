@@ -1,9 +1,18 @@
-# Generated files that tests compare byte for byte with what they generate: LF on every OS, also
-# where Git for Windows' core.autocrlf would check them out with CRLF.
-docs/launcher-commands.md text eol=lf
-docs/horizon-ctl-commands.md text eol=lf
-crates/horizon-theme/tokens.css text eol=lf
-docs/api/*-reference.md text eol=lf
+# Line endings are load-bearing here:
+#
+#  * crates/horizon-shader-api/tests/reference.rs compares docs/api/*-reference.md
+#    byte-for-byte with what `horizon-shader doc` generates;
+#  * `horizon-shader pack` embeds pack files verbatim, so a CRLF checkout would
+#    produce different `.hshader` bytes than the same pack on Linux/macOS;
+#  * crates/horizon-shader-gallery compares golden frames and pack textures as
+#    raw bytes.
+#
+# So every text file is checked out with LF on every OS, including Git for
+# Windows with core.autocrlf=true.
+* text=auto eol=lf
 
-# Rust sources are scanned for exact byte patterns by hook tests: LF everywhere.
-*.rs text eol=lf
+# Images are hashed and compared byte-for-byte (golden frames, pack textures).
+*.png binary
+
+# Ship-format archives are built byte-for-byte reproducibly; never convert.
+*.hshader binary
