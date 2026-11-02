@@ -1,4 +1,4 @@
-//! The SDK: every template and the example pack pass the check, and the
+//! The SDK: every template and the packs pass the check, and the
 //! `horizon-shader` tool makes, checks and packages a pack.
 use horizon_shader_api::{Pack, check};
 use std::{path::Path, process::Command};
@@ -17,14 +17,6 @@ fn run(args: &[&str]) -> (bool, String) {
     let text =
         String::from_utf8_lossy(&out.stdout).into_owned() + &String::from_utf8_lossy(&out.stderr);
     (out.status.success(), text)
-}
-
-#[test]
-fn the_example_pack_passes() {
-    let dir = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/packs/golden_hour"));
-    let report = check(&Pack::read(dir).unwrap()).unwrap();
-    let labels: Vec<_> = report.stages.iter().map(|s| s.label.as_str()).collect();
-    assert_eq!(labels, ["Warm horizon", "Glow", "Colour grade"]);
 }
 
 #[test]

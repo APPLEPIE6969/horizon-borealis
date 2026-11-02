@@ -69,7 +69,7 @@ fn post(input: PostInput) -> vec4<f32> {
 
     c = apply_tonemap(c);
 
-    // Saturation and contrast, as golden_hour grades, after the curve.
+    // Saturation and contrast, after the tone curve.
     c = mix(vec3<f32>(luminance(c)), c, saturation);
     c = clamp((c - 0.5) * contrast + 0.5, vec3<f32>(0.0), vec3<f32>(1.0));
 

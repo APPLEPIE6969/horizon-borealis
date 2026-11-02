@@ -1,6 +1,6 @@
 <p align="center">
   <h1 align="center">Borealis</h1>
-  <p align="center">A shader pack for <a href="https://github.com/horizon-rust/horizon">Horizon</a>'s own shader API, validated by a golden-image gallery.</p>
+  <p align="center">A shader pack for <a href="https://github.com/horizon-rust/horizon">Horizon</a>'s shader API, with the pack toolchain and a golden-image gallery in one small workspace.</p>
 </p>
 
 <p align="center">
@@ -11,34 +11,28 @@
 
 ---
 
-Borealis is an Enhanced-grade shader pack written for Horizon's shader API
-(`horizon-shaders.toml` + WGSL): a physical single-scattering sky, soft sun and
-moon shadows that keep the colour of whatever they pass through, waving plants,
-rolling and reflecting water, coloured block light, bloom, and a filmic grade
-with a choice of tone curves. Parts are ported from
-[Photon Shaders](https://github.com/sixthsurge/photon) (MIT); the rest is
-original MIT work. The full provenance of every ported part is documented in
-[the pack's own README](crates/horizon-shader-api/packs/borealis/README.md).
+Borealis is an Enhanced-grade shader pack written in WGSL for Horizon's shader
+API (`horizon-shaders.toml` + WGSL): a physical single-scattering sky, soft sun
+and moon shadows that keep the colour of whatever they pass through, waving
+plants, rolling and reflecting water, coloured block light, bloom, and a filmic
+grade with a choice of tone curves. The shader code is this repository's own
+work, with credited MIT ports from [Photon Shaders](https://github.com/sixthsurge/photon)
+(see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)) — the full provenance of
+every part is documented in [the pack's README](crates/horizon-shader-api/packs/borealis/README.md).
 
-## Where the pack lives
+## Layout
 
 | Path | What it is |
 |---|---|
 | [`crates/horizon-shader-api/packs/borealis/`](crates/horizon-shader-api/packs/borealis/) | **The pack**: `sky.wgsl`, `material.wgsl`, `weather.wgsl`, the post chain (`post/`), shared includes (`lib/`), settings (`horizon-shaders.toml`), licence and provenance |
-| [`crates/horizon-shader-api/`](crates/horizon-shader-api/) | The pack format: parser, validator and the `horizon-shader` CLI (`check` / `pack`) |
-| [`crates/horizon-shader-gallery/`](crates/horizon-shader-gallery/) | Headless wgpu renderer for the packs: the scene gallery and the frozen golden-image tests |
-| [`docs/api/shaders.md`](docs/api/shaders.md) · [`docs/api/shaders-reference.md`](docs/api/shaders-reference.md) | The pack format and its reference |
-| [`docs/shaders.md`](docs/shaders.md) | How the pipeline stages run in the game |
+| [`crates/horizon-shader-api/`](crates/horizon-shader-api/) | The pack toolchain (Horizon's MIT crate, kept under its own licence): the manifest format, the WGSL parser/validator and the `horizon-shader` CLI (`new` / `check` / `pack`) |
+| [`crates/horizon-shader-gallery/`](crates/horizon-shader-gallery/) | Headless wgpu renderer for the pack: the scene gallery and the frozen golden-image tests |
+| [`crates/horizon-shader-api/packs/borealis/README.md`](crates/horizon-shader-api/packs/borealis/README.md) | Options, provenance and maintainer notes for the pack |
 
-## Why this repository contains the whole Horizon workspace
-
-The pack format, its validator, the `.hshader` packager and the gallery are
-crates of the [Horizon workspace](https://github.com/horizon-rust/horizon)
-(MIT), and the golden images are only meaningful against the exact renderer
-the game ships. The workspace is therefore checked in verbatim so the pack is
-always validated against the real toolchain, not a partial copy: the pack and
-the gallery are this repository's deliverable, everything around them is the
-harness they are tested inside.
+The pack format itself (manifest schema, stage pipeline, the check's budgets)
+is documented in [`docs/api/shaders-reference.md`](docs/api/shaders-reference.md),
+generated from the toolchain crate (a test fails when the file drifts);
+`cargo doc --workspace --no-deps` renders the crate-level docs.
 
 ## Validation
 
@@ -46,18 +40,18 @@ Every push runs the `checks` workflow (`.github/workflows/ci.yml`):
 
 | Job | What it does |
 |---|---|
-| `verify` | `cargo fmt` + `clippy --workspace --all-targets -D warnings`, the full Rust test suite, doc tests, and the workspace's Python tooling tests |
+| `verify` | `cargo fmt` + `clippy --workspace --all-targets -D warnings`, then tests for the toolchain and the gallery harness (SDK, templates, packaging, WGSL probes) plus doc tests |
 | `cross` | `clippy + test` on `windows-latest` and `macos-latest` |
-| `gpu-golden` | Renders the gallery scenes on pinned SwiftShader (chrome-headless-shell 156.0.8078.80) and compares against the frozen golden images |
-| `shader-validation` | `horizon-shader check` on every pack, then packages borealis twice and requires byte-identical `.hshader` output |
+| `gpu-golden` | Renders the gallery scenes (noon, sunset, night, underwater, shadows, rain) on pinned SwiftShader (chrome-headless-shell 156.0.8078.80) and compares against the frozen golden images |
+| `shader-validation` | `horizon-shader check` on the pack, then packages borealis twice and requires byte-identical `.hshader` output |
 | `doc` | `cargo doc --workspace --no-deps` |
-| `msrv` | `cargo check` on the declared per-crate MSRV (1.95) |
+| `msrv` | `cargo check` on the locked tree's real floor (rustc 1.95) |
 | `deny` | `cargo deny` (licenses, bans, sources) |
 
 ## Working on the pack
 
 ```sh
-# validate (what the game, launcher and registry run)
+# validate (the same check the game, launcher and registry run)
 cargo run -p horizon-shader-api --bin horizon-shader -- check crates/horizon-shader-api/packs/borealis --json
 
 # package (reproducible: two runs are byte-identical)
@@ -69,13 +63,14 @@ cargo test -p horizon-shader-gallery
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE). Ported portions carry their upstream licences:
-Photon Shaders by SixthSurge (MIT, reproduced in
-[the pack's `LICENSE`](crates/horizon-shader-api/packs/borealis/LICENSE)), the
-minimal AgX curve by Benjamin Wrensch (MIT), and the published tone-curve fits
-credited in the pack README. [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)
-collects the workspace-wide notices.
+The pack, the gallery and the CI are MIT — see [LICENSE](LICENSE). The pack
+toolchain crate is [Horizon](https://github.com/horizon-rust/horizon)'s MIT
+code and keeps its own licence at
+[`crates/horizon-shader-api/LICENSE`](crates/horizon-shader-api/LICENSE).
+Ported WGSL portions carry their upstream licences (Photon Shaders by
+SixthSurge, the minimal AgX curve by Benjamin Wrensch), collected in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-> Not an official Minecraft product, nor approved by or associated with Mojang
-> or Microsoft. The upstream Horizon project contains no Minecraft code,
-> assets or data.
+> This pack targets the look of Minecraft: Java Edition but contains no
+> Minecraft code, assets or data, and is not an official Minecraft product,
+> nor approved by or associated with Mojang or Microsoft.

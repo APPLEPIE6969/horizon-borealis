@@ -1,7 +1,8 @@
 # Shader API reference (0.1)
 
 Generated from `crates/horizon-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p horizon-shader-api --test reference`
-rewrites it; the test fails when it drifts). The API's design and pack format: [shaders.md](shaders.md).
+rewrites it; the test fails when it drifts). The API is Horizon's shader-API crate, kept under its own MIT
+license (crates/horizon-shader-api/LICENSE); the pack targeting it is crates/horizon-shader-api/packs/borealis.
 
 A stage is a function your WGSL defines, with the signature below; Horizon puts the prelude (these structs, the
 resources and helpers) before your files and calls the function from its own pass. Your files declare no

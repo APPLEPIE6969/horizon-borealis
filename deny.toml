@@ -2,8 +2,7 @@
 # free of banned/duplicate crates. Run with `cargo deny check bans licenses sources`.
 
 [licenses]
-# Permissive licenses only; the vendored third_party/ crates keep their own
-# upstream licenses (documented in THIRD_PARTY_NOTICES.md).
+# Permissive licenses only.
 allow = [
     "MIT",
     "Apache-2.0",

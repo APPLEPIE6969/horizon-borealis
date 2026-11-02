@@ -1,113 +1,19 @@
 # Third-party notices
 
-## wgpu-hal
+Everything in this repository is original work except the pieces below, each
+of which keeps its upstream license.
 
-`third_party/wgpu-hal` is [wgpu-hal](https://github.com/gfx-rs/wgpu) 30.0.1 by the gfx-rs
-developers, with upstream fixes applied
-([gfx-rs/wgpu#10124](https://github.com/gfx-rs/wgpu/pull/10124),
-[gfx-rs/wgpu#10714](https://github.com/gfx-rs/wgpu/pull/10714)). It is licensed under MIT or
-Apache-2.0; both licenses are in that folder (`LICENSE.MIT`, `LICENSE.APACHE`).
+| What | Where | Origin and license |
+|---|---|---|
+| The shader-pack format and toolchain | `crates/horizon-shader-api` | [Horizon](https://github.com/horizon-rust/horizon)'s shader-API crate (the manifest format, the WGSL parser/checker and the `horizon-shader` tool), used unmodified under MIT — see [`crates/horizon-shader-api/LICENSE`](crates/horizon-shader-api/LICENSE). The Borealis pack's WGSL is not Horizon code. |
+| Stars | `crates/horizon-shader-api/packs/borealis/lib/stars.wgsl` | Ported from [Photon Shaders](https://github.com/sixthsurge/photon) by SixthSurge (`shaders/include/sky/stars.glsl`, with its `hash4` and `blackbody`), MIT — reproduced in [the pack's `LICENSE`](crates/horizon-shader-api/packs/borealis/LICENSE). |
+| Water waves | the water parts of `crates/horizon-shader-api/packs/borealis/lib/waves.wgsl` | Ported from Photon's Gerstner wave stack (`shaders/include/surface/water_normal.glsl`, credited by Photon to Belmu), MIT. |
+| AgX tone curve | `crates/horizon-shader-api/packs/borealis/lib/tonemap.wgsl` | The [minimal AgX](https://iolite-engine.com/blog_posts/minimal_agx_implementation) by Benjamin Wrensch (iolite-engine), MIT. |
+| Other tone curves | `crates/horizon-shader-api/packs/borealis/lib/tonemap.wgsl` | The published ACES (Narkowicz), Lottes, Hable, Uchimura and Reinhard fits — credited in [the pack's README](crates/horizon-shader-api/packs/borealis/README.md). |
 
-## naga
+Rust dependencies come from crates.io (`naga`, `wgpu`, `serde`, …); CI runs
+`cargo deny` over their licenses on every push.
 
-`third_party/naga` is [naga](https://github.com/gfx-rs/wgpu) 30.0.1 by the gfx-rs developers, with
-fixes to its GLSL frontend that shader packs need, each applied in the commit that needed it. It is licensed under MIT or Apache-2.0; both licenses
-are in that folder (`LICENSE.MIT`, `LICENSE.APACHE`).
-
-## Pixelify Sans
-
-`crates/horizon-theme/fonts/PixelifySans-*.ttf` is [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans)
-by The Pixelify Sans Project Authors, licensed under the SIL Open Font License 1.1
-(`crates/horizon-theme/fonts/OFL-PixelifySans.txt`).
-
-## Pixelarticons
-
-`crates/horizon-theme/icons/pixel/*.svg` are icons from
-[Pixelarticons](https://github.com/halfmage/pixelarticons) by Gerrit Halfmann, under the MIT
-license (`crates/horizon-theme/icons/pixel/LICENSE-pixelarticons.txt`). `star.svg` is Horizon's own, drawn on
-the same grid.
-
-## AMD FidelityFX SDK (FSR 3.1 frame generation)
-
-`crates/horizon-client-render/src/gfx/frame_gen/optical_flow.wgsl` and `interpolation.wgsl` are
-ports to WGSL of the optical flow and frame interpolation shaders of the
-[AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) 1.1.4
-(`sdk/include/FidelityFX/gpu/{opticalflow,frameinterpolation}`, at commit
-[c6efa6bf7f20](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/c6efa6bf7f2027b3ec94f28578bb5965eabb9e55)),
-and `optical_flow.rs` follows the SDK's `sdk/src/components/opticalflow/ffx_opticalflow.cpp`
-(its passes, their order and their dispatch sizes). Copyright (C) 2024 Advanced Micro Devices,
-Inc., under the MIT license, whose text heads each file. AMD and FidelityFX are AMD's
-trademarks; Horizon is not affiliated with AMD.
-
-## Borealis shader pack
-
-`crates/horizon-shader-api/packs/borealis` is Horizon's own shader pack, with
-portions ported from other packs under licenses that permit it:
-
-- The stars (`lib/stars.wgsl`) and the water waves (the water parts of
-  `lib/waves.wgsl`) are ported from [Photon Shaders](https://github.com/sixthsurge/photon)
-  by Benjamin Stott ("SixthSurge"), © 2021-2025, under the Photon Shaders
-  License Agreement, whose text ships with the pack (`LICENSE-photon.txt`) and
-  permits redistributing modified or unmodified portions, with the exceptions
-  it lists (not on platforms that pay creators, and not sold, without written
-  permission).
-- The AgX tone curve (`lib/tonemap.wgsl`) is the minimal AgX implementation of
-  [iolite-engine](https://iolite-engine.com/blog_posts/minimal_agx_implementation),
-  © 2024 Missing Deadlines (Benjamin Wrensch), under the MIT license.
-
-The pack's own code (the sky, lighting, shadows, fog, material, vertex,
-weather and post stages) is MIT; both license texts ship with the pack
-(`LICENSE`).
-
-## Mod loader logos
-
-The launcher shows the logo of the mod loader an instance plays with.
-
-- `launcher/assets/logos/quilt.png` is the Quilt mini icon (`brand/128png/quilt_mini_icon_transparent.png`)
-  from [QuiltMC/art](https://github.com/QuiltMC/art), by the Quilt Project, dedicated to the public
-  domain under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
-- `launcher/assets/logos/neoforge.png` is NeoForged's icon (`art/neoforged_icon_16x16.png`) from
-  [neoforged/.github](https://github.com/neoforged/.github/tree/main/art), © the NeoForged team,
-  created by Ridanisaurus, under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It is
-  unmodified (the launcher scales it up by whole pixels).
-- Fabric's and Forge's icons are not shipped: neither publishes a license for its logo. The launcher
-  fetches them from their own sites when an instance needs them
-  ([fabric-loader's icon](https://github.com/FabricMC/fabric-loader/blob/master/src/main/resources/assets/fabricloader/icon.png),
-  [files.minecraftforge.net's](https://files.minecraftforge.net/)).
-
-Each logo belongs to its project. Showing it says which loader an instance runs; it does not mean
-the project endorses Horizon.
-
-## Sign in with Microsoft
-
-The launcher's sign-in buttons follow Microsoft's published branding guidelines for apps that sign in
-with Microsoft accounts
-([Sign in with Microsoft branding](https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps)).
-The four-square Microsoft symbol in `launcher/src/microsoft.rs` reproduces the squares, positions and
-colours of Microsoft's official `ms-symbollockup_mssymbol_19.svg` from that page, unmodified. Microsoft
-and its logo are trademarks of the Microsoft group of companies; Horizon is not endorsed by Microsoft.
-
-## CIT Resewn
-
-`crates/horizon-optifine/src/cit.rs` and `crates/horizon-client-render/src/cit.rs` follow the
-condition semantics of [CIT Resewn Continuation](https://github.com/EthanVisagie/CIT-Resewn-Continuation-1.21.11)
-(at `b792f9a`), a continuation of [CIT Resewn](https://github.com/SHsuperCM/CITResewn) by SHsuperCM: the
-1.21 component paths, enchantment levels, percent damage, text matching and rule ordering. It is
-licensed under the MIT license:
-
-> Copyright (c) 2021 SHsuperCM
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-> and associated documentation files (the "Software"), to deal in the Software without
-> restriction, including without limitation the rights to use, copy, modify, merge, publish,
-> distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
-> Software is furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all copies or
-> substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-> BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-> NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-> DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+This pack targets Minecraft: Java Edition's look but contains no Minecraft
+code, assets or data, and is not an official Minecraft product, nor approved
+by or associated with Mojang or Microsoft.

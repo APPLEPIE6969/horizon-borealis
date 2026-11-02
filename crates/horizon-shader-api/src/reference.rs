@@ -33,7 +33,8 @@ pub fn markdown() -> String {
     let mut out = format!(
         "# Shader API reference ({API})\n\n\
          Generated from `crates/horizon-shader-api` (`HORIZON_WRITE_DOCS=1 cargo test -p horizon-shader-api --test reference`\n\
-         rewrites it; the test fails when it drifts). The API's design and pack format: [shaders.md](shaders.md).\n\n\
+         rewrites it; the test fails when it drifts). The API is Horizon's shader-API crate, kept under its own MIT\n\
+         license (crates/horizon-shader-api/LICENSE); the pack targeting it is crates/horizon-shader-api/packs/borealis.\n\n\
          A stage is a function your WGSL defines, with the signature below; Horizon puts the prelude (these structs, the\n\
          resources and helpers) before your files and calls the function from its own pass. Your files declare no\n\
          bindings and no entry points, and no names starting with `horizon_`.\n\n\
