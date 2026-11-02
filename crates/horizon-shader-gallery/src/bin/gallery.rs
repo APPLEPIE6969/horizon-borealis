@@ -16,6 +16,7 @@ fn main() {
     let gpu = PackGpu::load(std::path::Path::new(&pack_dir));
     let scenes = [
         scene::noon_plains(),
+        scene::dawn(),
         scene::sunset_water(),
         scene::night(),
         scene::underwater(),

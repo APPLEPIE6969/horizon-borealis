@@ -385,10 +385,14 @@ struct Golden {
     build: fn() -> scene::Scene,
 }
 
-const GOLDENS: [Golden; 6] = [
+const GOLDENS: [Golden; 7] = [
     Golden {
         name: "noon",
         build: scene::noon_plains,
+    },
+    Golden {
+        name: "dawn",
+        build: scene::dawn,
     },
     Golden {
         name: "sunset",

@@ -364,7 +364,7 @@ impl Builder {
 /// The shared world: ground, a hill, a small house with glass windows and
 /// glowstone lamps, a pond, two trees, a stone pillar. Returns it with the
 /// camera and sky the scene asks for.
-fn world(name: &'static str, sky: SkyParams, eye: [f32; 3], target: [f32; 3]) -> Scene {
+pub fn world(name: &'static str, sky: SkyParams, eye: [f32; 3], target: [f32; 3]) -> Scene {
     let mut b = Builder::new(name);
     b.sky = sky;
     b.eye = eye;
@@ -555,6 +555,22 @@ pub fn noon_plains() -> Scene {
         "noon",
         SkyParams {
             day_time: 0.25,
+            ..Default::default()
+        },
+        [10.0, 7.5, 13.0],
+        [-1.0, 2.0, -1.0],
+    )
+}
+
+/// A new world starts at sunrise, so the first minutes of play run the sun at
+/// a quarter of the way up the sky — the regime the first shipped screenshots
+/// were taken in. The sky's low-sun behaviour and the grade's exposure are
+/// watched here.
+pub fn dawn() -> Scene {
+    world(
+        "dawn",
+        SkyParams {
+            day_time: 0.045,
             ..Default::default()
         },
         [10.0, 7.5, 13.0],

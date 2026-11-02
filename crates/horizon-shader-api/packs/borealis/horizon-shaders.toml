@@ -6,7 +6,7 @@
 schema = 1
 id = "borealis"
 name = "Borealis"
-version = "0.1.1"
+version = "0.1.2"
 api = "0.1"
 description = "A physical sky, soft sun shadows, rippling and reflecting water, bloom and a filmic grade — written for Horizon, with stars and water ported from Photon."
 authors = ["Horizon", "SixthSurge (Photon, ported portions)"]

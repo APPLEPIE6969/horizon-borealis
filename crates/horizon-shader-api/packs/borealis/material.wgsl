@@ -43,13 +43,15 @@ fn material(input: MaterialInput) -> Surface {
         let fresnel = 0.02 + 0.98 * pow(1.0 - ndv, 5.0);
 
         // The world mirrored about the water plane, sampled where the point
-        // sits on the screen; the sky's colour stands in when it is off.
+        // sits on the screen; the sky's colour stands in when it is off, at
+        // its own brightness — boosting an already pale sky whites the
+        // surface out when the sun is low.
         var reflected = vec3<f32>(0.0);
         if reflections && frame.has_reflection == 1u {
             reflected = textureSampleLevel(reflection, reflection_sampler, input.screen, 0.0).rgb;
             reflected *= 0.35 + daylight() * 0.65;
         } else {
-            reflected = fog_color_toward(view) * 1.2;
+            reflected = fog_color_toward(view);
         }
 
         // Refraction: the world behind the surface, pulled by the wave normal,

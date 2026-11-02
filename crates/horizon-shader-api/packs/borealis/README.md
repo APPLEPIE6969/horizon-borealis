@@ -45,6 +45,10 @@ exposure, tone mapping, saturation, contrast, vignette, night desaturation).
 
 - `noise.png` is a generated 512×512 tiling value-noise texture (its blue
   channel feeds the water waves' phase offsets).
+- The goldens include a `dawn` scene: a new world starts at sunrise, so the
+  first minutes of play run the sun low — the regime most likely to regress
+  unseen (0.1.2's low-sun sky lift and the water-reflection fallback fix both
+  came out of a player's first-morning screenshot).
 - The gallery and the golden images live in `crates/horizon-shader-gallery`:
   `cargo run -p horizon-shader-gallery --bin gallery -- crates/horizon-shader-api/packs/borealis <dir>`
   renders the gallery; `cargo test -p horizon-shader-gallery` checks the pack

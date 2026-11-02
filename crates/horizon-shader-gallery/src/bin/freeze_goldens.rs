@@ -11,6 +11,7 @@ fn main() {
                 as fn() -> horizon_shader_gallery::scene::Scene,
         ),
         ("sunset", horizon_shader_gallery::scene::sunset_water),
+        ("dawn", horizon_shader_gallery::scene::dawn),
         ("night", horizon_shader_gallery::scene::night),
         ("underwater", horizon_shader_gallery::scene::underwater),
         ("shadows", horizon_shader_gallery::scene::shadows),
