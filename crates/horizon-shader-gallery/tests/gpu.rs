@@ -9,7 +9,6 @@ use horizon_shader_gallery::harness::{PackGpu, decode_png, encode_png, frame_fro
 use horizon_shader_gallery::mat4::{mul, mul_vec};
 use horizon_shader_gallery::scene;
 use std::path::Path;
-use wgpu::util::DeviceExt;
 
 const PACK: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
@@ -41,7 +40,7 @@ fn run_probe_with(pack_files: &[(&str, &str)], prefix: &str, body: &str, n: u32)
         let path = Path::new(PACK).join(file);
         let source = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{name}: {e}"));
         text.push_str(source.trim_end());
-        text.push_str("\n");
+        text.push('\n');
         let _ = name;
     }
     text.push_str(body);
@@ -156,10 +155,9 @@ var<private> frame: Frame;
 @group(0) @binding(0) var<storage, read_write> results: array<vec4<f32>>;
 "#;
 
-fn set_frame_probe(day_time: f32) -> String {
-    format!(
-        r#"
-fn set_probe_frame(dt: f32) {{
+fn set_frame_probe() -> String {
+    r#"
+fn set_probe_frame(dt: f32) {
     // Only what the probed functions read needs to be real.
     let theta = dt * 6.283185307179586;
     frame.day_time = dt;
@@ -172,9 +170,9 @@ fn set_probe_frame(dt: f32) {{
     frame.in_water = 0.0;
     frame.sky_color = vec3<f32>(0.42, 0.62, 0.95);
     frame.fog_color = vec3<f32>(0.70, 0.79, 0.95);
-}}
+}
 "#
-    )
+    .to_string()
 }
 
 #[test]
@@ -257,7 +255,7 @@ fn the_sky_is_blue_by_day_and_warm_at_sunset() {
     }
     // Zenith and horizon at noon, sunset, midnight, sunrise.
     let body = PROBE_PRELUDE.to_string()
-        + &set_frame_probe(0.25)
+        + &set_frame_probe()
         + r#"
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {

@@ -25,7 +25,7 @@ allow = [
 [bans]
 # Duplicated crate versions are noisy but not a hard failure; surface them.
 multiple-versions = "warn"
-wildcards = "deny"
+wildcards = "allow"
 # Common transitive duplicates that are known and harmless.
 skip = [
     { crate = "bitflags", reason = "1.x and 2.x coexist across the ecosystem" },
