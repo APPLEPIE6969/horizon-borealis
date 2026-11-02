@@ -6,9 +6,9 @@
 schema = 1
 id = "borealis"
 name = "Borealis"
-version = "0.1.0"
+version = "0.1.1"
 api = "0.1"
-description = "A physical sky, soft sun shadows, waving plants and rolling water, bloom and a filmic grade — written for Horizon, with stars and water ported from Photon."
+description = "A physical sky, soft sun shadows, rippling and reflecting water, bloom and a filmic grade — written for Horizon, with stars and water ported from Photon."
 authors = ["Horizon", "SixthSurge (Photon, ported portions)"]
 license = "MIT"
 shared = ["common.wgsl"]
@@ -18,10 +18,6 @@ file = "sky.wgsl"
 files = ["lib/atmosphere.wgsl", "lib/stars.wgsl"]
 sun = false
 stars = false
-
-[vertex]
-file = "vertex.wgsl"
-files = ["lib/waves.wgsl"]
 
 [material]
 file = "material.wgsl"
@@ -201,16 +197,9 @@ type = "bool"
 default = true
 
 [[options]]
-id = "wavy_plants"
-name = "Waving plants"
-description = "Leaves, grass and crops sway in the wind."
-type = "bool"
-default = true
-
-[[options]]
 id = "water_waves"
 name = "Water waves"
-description = "Rolling waves on water and its ripples' shading."
+description = "The ripples' shading on water."
 type = "bool"
 default = true
 
@@ -343,9 +332,9 @@ items = ["soft_shadows", "shadow_strength", "shadow_distance", "sunlight_amount"
 
 [[pages]]
 id = "water"
-name = "Water & movement"
+name = "Water"
 description = "Waves, reflections and clarity."
-items = ["water_waves", "reflections", "water_clarity", "wavy_plants"]
+items = ["water_waves", "reflections", "water_clarity"]
 
 [[pages]]
 id = "sky"

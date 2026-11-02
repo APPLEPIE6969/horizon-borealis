@@ -383,6 +383,7 @@ dependencies = [
  "horizon-shader-api",
  "png",
  "pollster",
+ "toml",
  "wgpu",
 ]
 

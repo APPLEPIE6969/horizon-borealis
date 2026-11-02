@@ -13,16 +13,16 @@
 
 Borealis is an Enhanced-grade shader pack written in WGSL for Horizon's shader
 API (`horizon-shaders.toml` + WGSL): a physical single-scattering sky, soft sun
-and moon shadows that keep the colour of whatever they pass through, waving
-plants, rolling and reflecting water, coloured block light, bloom, and a filmic
-grade with a choice of tone curves. The shader code is this repository's own
+and moon shadows that keep the colour of whatever they pass through, rippling
+and reflecting water, coloured block light, bloom, and a filmic grade with a
+choice of tone curves. The shader code is this repository's own
 work, with credited MIT ports from [Photon Shaders](https://github.com/sixthsurge/photon)
 (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)) — the full provenance of
 every part is documented in [the pack's README](crates/horizon-shader-api/packs/borealis/README.md).
 
 ## Install in Horizon
 
-1. Download `borealis-0.1.0.hshader` from the
+1. Download `borealis-0.1.1.hshader` from the
    [latest release](https://github.com/APPLEPIE6969/horizon-borealis/releases/latest).
 2. Drop it into the `shaderpacks` folder of your Horizon game folder — the folder
    that holds `options.txt` (create `shaderpacks` if it isn't there). If you launch
@@ -30,9 +30,9 @@ every part is documented in [the pack's README](crates/horizon-shader-api/packs/
    the folder that holds *that* `options.txt` is the one that counts.
 3. In game: **Options → Horizon Settings → Shader Packs** and pick **Borealis**.
 
-Settings live on the pack's four pages (Lighting, Water & movement, Sky &
-atmosphere, Post-processing). What you change is saved next to the pack as
-`borealis-0.1.0.hshader.txt`; keep that file beside the `.hshader` when you
+Settings live on the pack's four pages (Lighting, Water, Sky & atmosphere,
+Post-processing). What you change is saved next to the pack as
+`borealis-0.1.1.hshader.txt`; keep that file beside the `.hshader` when you
 upgrade and your settings carry over. Developers can also install the pack as a
 plain folder — the one with `horizon-shaders.toml` in it — instead of a
 `.hshader`; Horizon lists both, Horizon-format packs first.

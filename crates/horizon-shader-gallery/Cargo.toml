@@ -13,5 +13,8 @@ png = "0.18"
 pollster = "0.4"
 wgpu = "30.0.1"
 
+[dev-dependencies]
+toml = "1.1.6"
+
 [lints]
 workspace = true

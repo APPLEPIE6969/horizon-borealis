@@ -21,8 +21,8 @@ fn the_pack_passes_the_check() {
     let labels: Vec<_> = report.stages.iter().map(|s| s.label.as_str()).collect();
     assert_eq!(
         labels.len(),
-        8,
-        "sky, vertex, material, weather and 4 post passes: {labels:?}"
+        7,
+        "sky, material, weather and 4 post passes: {labels:?}"
     );
     assert!(
         report.stages.iter().all(|s| s.expressions <= 20_000),
@@ -87,6 +87,50 @@ fn the_manifest_holds_together() {
     assert!(
         pack.manifest.reflection.is_some(),
         "the pack asks for the water mirror"
+    );
+}
+
+// The released game rejects any manifest field it doesn't know: Horizon
+// 0.2.97's "unknown field" error names exactly the fields below. `vertex`
+// (geometric waving) exists only on upstream main and ships in no release, so
+// a manifest that uses it loads nowhere but a toolchain build — the trap the
+// 0.1.0 pack fell into. Pin the pack to the released set here; widen it only
+// when a game release actually ships the new field.
+#[test]
+fn uses_only_fields_the_released_game_accepts() {
+    const RELEASED_GAME_FIELDS: &[&str] = &[
+        "schema",
+        "id",
+        "name",
+        "version",
+        "api",
+        "description",
+        "authors",
+        "license",
+        "shared",
+        "sky",
+        "material",
+        "weather",
+        "post",
+        "options",
+        "pages",
+        "tags",
+        "materials",
+        "textures",
+        "lights",
+        "budget",
+        "reflection",
+        "shadow",
+    ];
+    let text = std::fs::read_to_string(Path::new(PACK).join("horizon-shaders.toml")).unwrap();
+    let table = text.parse::<toml::Table>().unwrap();
+    let unknown: Vec<_> = table
+        .keys()
+        .filter(|k| !RELEASED_GAME_FIELDS.contains(&k.as_str()))
+        .collect();
+    assert!(
+        unknown.is_empty(),
+        "fields the released game rejects (main-only or misspelled): {unknown:?}"
     );
 }
 

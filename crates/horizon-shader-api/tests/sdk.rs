@@ -26,8 +26,8 @@ fn the_borealis_pack_passes() {
     let labels: Vec<_> = report.stages.iter().map(|s| s.label.as_str()).collect();
     assert_eq!(
         labels.len(),
-        8,
-        "sky, vertex, material, weather and four post passes: {labels:?}"
+        7,
+        "sky, material, weather and four post passes: {labels:?}"
     );
     // The stages stay far inside the check's budgets.
     assert!(report.stages.iter().all(|s| s.expressions <= 20_000));

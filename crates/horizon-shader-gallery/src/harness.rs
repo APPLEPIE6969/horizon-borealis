@@ -493,7 +493,18 @@ impl PackGpu {
             })
         };
 
-        let terrain_module = module(StageKind::Material, "material.wgsl", HARNESS_TERRAIN);
+        // A pack without a `[vertex]` stage — the shape a released game takes,
+        // since that stage ships in no release yet — still has to give the
+        // harness's terrain entry points their `fn vertex`: give them the
+        // identity, which is what the game's own undisplaced path draws.
+        let terrain_extra: std::borrow::Cow<'static, str> = if pack.manifest.vertex.is_some() {
+            std::borrow::Cow::Borrowed(HARNESS_TERRAIN)
+        } else {
+            std::borrow::Cow::Owned(format!(
+                "fn vertex(input: VertexInput) -> vec3<f32> {{\n    return input.position;\n}}\n\n{HARNESS_TERRAIN}"
+            ))
+        };
+        let terrain_module = module(StageKind::Material, "material.wgsl", &terrain_extra);
         let sky_module = pack
             .manifest
             .sky

@@ -579,7 +579,6 @@ fn the_game_compose_still_builds_the_stages() {
     let pack = Pack::read(Path::new(PACK)).unwrap();
     for (kind, files) in [
         (StageKind::Sky, vec!["sky.wgsl"]),
-        (StageKind::Vertex, vec!["vertex.wgsl"]),
         (StageKind::Material, vec!["material.wgsl"]),
         (StageKind::Weather, vec!["weather.wgsl"]),
     ] {
