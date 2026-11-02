@@ -22,7 +22,7 @@ every part is documented in [the pack's README](crates/horizon-shader-api/packs/
 
 ## Install in Horizon
 
-1. Download `borealis-0.1.2.hshader` from the
+1. Download `borealis-0.1.3.hshader` from the
    [latest release](https://github.com/APPLEPIE6969/horizon-borealis/releases/latest).
 2. Drop it into the `shaderpacks` folder of your Horizon game folder — the folder
    that holds `options.txt` (create `shaderpacks` if it isn't there). If you launch
@@ -32,7 +32,7 @@ every part is documented in [the pack's README](crates/horizon-shader-api/packs/
 
 Settings live on the pack's four pages (Lighting, Water, Sky & atmosphere,
 Post-processing). What you change is saved next to the pack as
-`borealis-0.1.2.hshader.txt`; keep that file beside the `.hshader` when you
+`borealis-0.1.3.hshader.txt`; keep that file beside the `.hshader` when you
 upgrade and your settings carry over. Developers can also install the pack as a
 plain folder — the one with `horizon-shaders.toml` in it — instead of a
 `.hshader`; Horizon lists both, Horizon-format packs first.

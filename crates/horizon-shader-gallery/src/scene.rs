@@ -64,6 +64,10 @@ pub struct Scene {
     /// The camera: eye and target, world blocks.
     pub eye: [f32; 3],
     pub target: [f32; 3],
+    /// Reflection experiment mode: 0 none (the shipped default), 1 the game
+    /// reports a mirror whose buffer holds garbage where its pass did not
+    /// draw, 2 a fully drawn mirror.
+    pub reflection_mode: u8,
 }
 
 fn hash(x: u32, y: u32, seed: u32) -> f32 {
@@ -357,6 +361,7 @@ impl Builder {
             sky: self.sky,
             eye: self.eye,
             target: self.target,
+            reflection_mode: 0,
         }
     }
 }
@@ -576,6 +581,52 @@ pub fn dawn() -> Scene {
         [10.0, 7.5, 13.0],
         [-1.0, 2.0, -1.0],
     )
+}
+
+/// Open water to the horizon at dawn — the far-field regime the shared world
+/// is too small to reach, and where a game mirror pass that drew only the
+/// near field would show. Used by the reflection probes and the
+/// garbage-mirror regression test; not a golden.
+pub fn dawn_ocean() -> Scene {
+    let mut b = Builder::new("dawn-ocean");
+    b.sky = SkyParams {
+        day_time: 0.045,
+        water_plane: 0.0,
+        ..Default::default()
+    };
+    b.eye = [0.0, 3.0, 30.0];
+    b.target = [0.0, 0.5, -30.0];
+    // The ocean in 16-block tiles: a single quad would stretch one sprite
+    // across the whole plane. Face 1 (up) only, the same fluid flags the
+    // pond's water uses.
+    let light = [0.0, 1.0];
+    for x in -10..10 {
+        for z in -10..10 {
+            let (x0, z0) = ((x * 16) as f32, (z * 16) as f32);
+            b.quad(
+                [
+                    [x0, 0.0, z0],
+                    [x0 + 16.0, 0.0, z0],
+                    [x0 + 16.0, 0.0, z0 + 16.0],
+                    [x0, 0.0, z0 + 16.0],
+                ],
+                WATER,
+                1,
+                [light; 4],
+                [1.0; 4],
+                0,
+                TRANSLUCENT_BIT | FLUID_BIT,
+                0.0,
+            );
+        }
+    }
+    // A sand spit for orientation, so the near field is not empty.
+    for x in -2..3 {
+        for z in 18..23 {
+            b.block(x, -1, z, SAND, &[1], light, 1.0, 0, 0.0, 0);
+        }
+    }
+    b.finish()
 }
 
 pub fn sunset_water() -> Scene {

@@ -72,22 +72,27 @@ fn water_height(coord: vec2<f32>) -> f32 {
     return height * amplitude_normalization_factor;
 }
 
-// The water surface's normal at world position `pos`, from Photon's
+// The water surface's normal at world position `world_pos`, from Photon's
 // get_water_normal: height differences over a small step, with the
-// influence rising in rain and falling with distance.
-fn water_wave_normal(pos: vec3<f32>, flat_normal: vec3<f32>, skylight: f32) -> vec3<f32> {
+// influence rising in rain and falling with distance. `view` is the same
+// point camera-relative, for the dampen.
+fn water_wave_normal(world_pos: vec3<f32>, view: vec3<f32>, flat_normal: vec3<f32>, skylight: f32) -> vec3<f32> {
     let h = 0.1;
-    let wave0 = water_height(pos.xz);
-    let wave1 = water_height(pos.xz + vec2<f32>(h, 0.0));
-    let wave2 = water_height(pos.xz + vec2<f32>(0.0, h));
+    let wave0 = water_height(world_pos.xz);
+    let wave1 = water_height(world_pos.xz + vec2<f32>(h, 0.0));
+    let wave2 = water_height(world_pos.xz + vec2<f32>(0.0, h));
 
     var normal_influence = mix(0.01, 0.04 + 0.15 * frame.rain, clamp(skylight, 0.0, 1.0));
     // prevent noise when looking horizontally (Photon's dampen)
-    normal_influence *= smoothstep(0.0, 0.15, abs(dot(flat_normal, normalize(pos))));
+    normal_influence *= smoothstep(0.0, 0.15, abs(dot(flat_normal, normalize(view))));
 
-    var normal = vec3<f32>(wave1 - wave0, wave2 - wave0, h);
+    // Photon builds the normal with the up component in z and hands it to a
+    // z-up tangent frame at its call site; this stage works in world axes
+    // (y up), so the port folds that basis change in here: the height
+    // differences along the world's x and z, the constant h up.
+    var normal = vec3<f32>(wave1 - wave0, h, wave2 - wave0);
     normal.x *= normal_influence;
-    normal.y *= normal_influence;
+    normal.z *= normal_influence;
     return normalize(normal);
 }
 

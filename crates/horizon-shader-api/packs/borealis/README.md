@@ -49,6 +49,16 @@ exposure, tone mapping, saturation, contrast, vignette, night desaturation).
   first minutes of play run the sun low — the regime most likely to regress
   unseen (0.1.2's low-sun sky lift and the water-reflection fallback fix both
   came out of a player's first-morning screenshot).
+- 0.1.3's water fixes also came out of the field, and both are watched by
+  tests now. The ported wave normal kept Photon's z-up component order, so
+  the shading normal pointed along the world's z and the fresnel collapsed
+  to its floor — the water reflected nothing (`water_keeps_its_fresnel_far_to_near`).
+  The wave stack also read camera-relative positions, so the ripples slid
+  with the camera instead of standing in the world. And the mirror and the
+  refraction now trust the game's buffers less with distance, because a
+  half-streamed far field once showed as blue-black bands on the water
+  (`a_half_drawn_mirror_cannot_reach_far_water` feeds the pack exactly that
+  mirror and holds far water clean).
 - The gallery and the golden images live in `crates/horizon-shader-gallery`:
   `cargo run -p horizon-shader-gallery --bin gallery -- crates/horizon-shader-api/packs/borealis <dir>`
   renders the gallery; `cargo test -p horizon-shader-gallery` checks the pack

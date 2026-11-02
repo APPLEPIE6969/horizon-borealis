@@ -608,3 +608,79 @@ fn naga_parse(_text: &str) -> bool {
     // the golden tests. This stays as a placeholder for a pure-parse run.
     true
 }
+
+// --- the water's reflection regime -------------------------------------------
+
+/// The far half of the ocean in `dawn_ocean`, rows where the shared world's
+/// pond never reaches: enough water to measure the mirror's weight.
+fn ocean_band(image: &[u8], w: u32, h: u32, y0: f32, y1: f32) -> [f64; 3] {
+    let mut sum = [0.0f64; 3];
+    let mut n = 0u64;
+    for y in (y0 * h as f32) as u32..(y1 * h as f32) as u32 {
+        for x in (w / 4)..(3 * w / 4) {
+            let i = ((y * w + x) * 4) as usize;
+            sum[0] += image[i] as f64;
+            sum[1] += image[i + 1] as f64;
+            sum[2] += image[i + 2] as f64;
+            n += 1;
+        }
+    }
+    [sum[0] / n as f64, sum[1] / n as f64, sum[2] / n as f64]
+}
+
+#[test]
+fn water_keeps_its_fresnel_far_to_near() {
+    let Some(_adapter) = adapter() else {
+        eprintln!("skipped: no GPU adapter");
+        return;
+    };
+    let gpu = PackGpu::load(Path::new(PACK));
+    let s = scene::dawn_ocean();
+    let image = gpu.render(&s, 320, 180);
+
+    // Grazing water mirrors the bright sky, near water shows the body: the
+    // far band must read clearly brighter. When the ported wave normal came
+    // back pointing along the world's z, the fresnel collapsed to its floor
+    // everywhere and the two bands matched — the giveaway that the water
+    // had stopped reflecting.
+    let far = ocean_band(&image, 320, 180, 0.48, 0.58);
+    let near = ocean_band(&image, 320, 180, 0.85, 0.98);
+    let luma = |c: [f64; 3]| 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    assert!(
+        luma(far) > luma(near) + 15.0,
+        "far water ({far:?}) should be much brighter than near water ({near:?}); the fresnel has collapsed"
+    );
+}
+
+#[test]
+fn a_half_drawn_mirror_cannot_reach_far_water() {
+    let Some(_adapter) = adapter() else {
+        eprintln!("skipped: no GPU adapter");
+        return;
+    };
+    let gpu = PackGpu::load(Path::new(PACK));
+    // Mode 1: the game reports a mirror whose buffer holds noise where its
+    // pass did not draw. Far water stands at the render distance's edge,
+    // where streaming garbage lives — the pack trusts the mirror less with
+    // distance and falls back to the sky there, so the noise must not show.
+    let mut garbage = scene::dawn_ocean();
+    garbage.reflection_mode = 1;
+    let plain = scene::dawn_ocean();
+    let with_garbage = gpu.render(&garbage, 320, 180);
+    let without = gpu.render(&plain, 320, 180);
+
+    let rows = 0.46..0.50; // ~95 blocks out: past the trust's reach
+    let mut worst = 0.0f64;
+    for y in (rows.start * 180.0) as u32..(rows.end * 180.0) as u32 {
+        for x in (320 / 4)..(3 * 320 / 4) {
+            let i = ((y * 320 + x) * 4) as usize;
+            for c in 0..3 {
+                worst = worst.max((with_garbage[i + c] as f64 - without[i + c] as f64).abs());
+            }
+        }
+    }
+    assert!(
+        worst < 2.0,
+        "mirror garbage leaked {worst}/255 into far water; the distance trust failed"
+    );
+}

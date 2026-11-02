@@ -463,6 +463,23 @@ fn mix3(a: [f32; 3], b: [f32; 3], t: f32) -> [f32; 3] {
     ]
 }
 
+/// IEEE 754 binary16, little-endian, for feeding Rgba16Float textures.
+/// The noise here lives in 0..1, so denormals and overflow are not reached.
+fn f16_bytes(v: f32) -> [u8; 2] {
+    let x = v.to_bits();
+    let sign = ((x >> 16) & 0x8000) as u16;
+    let exp = ((x >> 23) & 0xff) as i32 - 127 + 15;
+    let mant = x & 0x007f_ffff;
+    let half = if exp >= 0x1f {
+        0x7c00
+    } else if exp <= 0 {
+        0
+    } else {
+        ((exp as u16) << 10) | (mant >> 13) as u16
+    };
+    (sign | half).to_le_bytes()
+}
+
 fn frame_size() -> u64 {
     std::mem::size_of::<horizon_shader_api::Frame>() as u64
 }
@@ -939,6 +956,9 @@ impl PackGpu {
         let device = &self.device;
         let mut frame = frame_from_scene(scene, w as f32, h as f32);
         frame.has_shadow = if shadows { 1 } else { 0 };
+        // The reflection experiment: 1 and 2 report a mirror to the pack,
+        // standing in for the game, which does.
+        frame.has_reflection = if scene.reflection_mode > 0 { 1 } else { 0 };
 
         // --- resources -----------------------------------------------------
         let frame_buf = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -1036,6 +1056,42 @@ impl PackGpu {
             (w / 2, h / 2),
             "reflection",
         );
+        // Mode 1 stands in for the game's half-drawn mirror: the pack is
+        // told a mirror exists, but the buffer keeps whatever was in memory
+        // where the pass did not draw — here, deterministic flat noise.
+        if scene.reflection_mode == 1 {
+            let (rw, rh) = (w / 2, h / 2);
+            let mut state = 0x1234_5678u32;
+            let mut next = || {
+                state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+                (state >> 8) as f32 / 16_777_216.0
+            };
+            let mut data = Vec::with_capacity((rw * rh * 8) as usize);
+            for _ in 0..rw * rh {
+                for v in [next(), next(), next(), 1.0] {
+                    data.extend_from_slice(&f16_bytes(v));
+                }
+            }
+            self.queue.write_texture(
+                wgpu::TexelCopyTextureInfo {
+                    texture: &reflection.texture,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                &data,
+                wgpu::TexelCopyBufferLayout {
+                    offset: 0,
+                    bytes_per_row: Some(rw * 8),
+                    rows_per_image: None,
+                },
+                wgpu::Extent3d {
+                    width: rw.max(1),
+                    height: rh.max(1),
+                    depth_or_array_layers: 1,
+                },
+            );
+        }
         let reflection_surface = Plane::new(
             device,
             wgpu::TextureFormat::Rgba16Float,
@@ -1589,7 +1645,8 @@ impl PackGpu {
 
         // 2. The water mirror: the world from a camera mirrored about the
         //    plane, with the pack's material but no reflection of its own.
-        if self.has_reflection_read {
+        //    Skipped in mode 1, so the garbage fill survives to be sampled.
+        if self.has_reflection_read && scene.reflection_mode != 1 {
             let clear = {
                 let c = frame.sky_color;
                 wgpu::Color {

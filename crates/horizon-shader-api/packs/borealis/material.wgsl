@@ -37,37 +37,50 @@ fn material(input: MaterialInput) -> Surface {
     if is_water {
         // The wave normal (or the flat one), the mirror and the sun's glint.
         if water_waves {
-            surface_normal = normalize(mix(input.normal, water_wave_normal(input.position, input.normal, input.light.y), 0.85));
+            // The wave stack reads the world position — Photon's waves are
+            // anchored to the world, not the camera — while the camera-
+            // relative point goes along for the dampen.
+            surface_normal = normalize(mix(input.normal, water_wave_normal(input.position + frame.camera_position, input.position, input.normal, input.light.y), 0.85));
         }
         let ndv = max(dot(surface_normal, to_eye), 0.0);
         let fresnel = 0.02 + 0.98 * pow(1.0 - ndv, 5.0);
 
+        // How far the point is, for how much the game's own buffers are
+        // trusted below: both the mirror and the world behind the surface
+        // can hold chunks the game is still streaming (the blue-black bands
+        // seen in the field), and past mid distance the sky and the vanilla
+        // tint carry the look on their own.
+        let dist = length(input.position);
+
         // The world mirrored about the water plane, sampled where the point
         // sits on the screen; the sky's colour stands in when it is off, at
         // its own brightness — boosting an already pale sky whites the
-        // surface out when the sun is low.
+        // surface out when the sun is low. Far water mirrors the horizon,
+        // which is where the sky stand-in lives anyway, so the mirror is
+        // trusted less with distance.
         var reflected = vec3<f32>(0.0);
         if reflections && frame.has_reflection == 1u {
-            reflected = textureSampleLevel(reflection, reflection_sampler, input.screen, 0.0).rgb;
-            reflected *= 0.35 + daylight() * 0.65;
+            let mirrored = textureSampleLevel(reflection, reflection_sampler, input.screen, 0.0).rgb;
+            let trust = 1.0 - smoothstep(frame.render_distance * 0.35, frame.render_distance * 0.85, dist);
+            reflected = mix(fog_color_toward(view), mirrored * (0.35 + daylight() * 0.65), trust);
         } else {
             reflected = fog_color_toward(view);
         }
 
         // Refraction: the world behind the surface, pulled by the wave normal,
-        // with the depth guard keeping the sample behind the surface.
+        // with the depth guard keeping the sample behind the surface. Trusted
+        // less with distance for the same streaming reason; the vanilla tint
+        // stands in for what lies behind.
         var behind = vec3<f32>(0.0);
         let texel = vec2<i32>(input.screen * frame.resolution);
+        let refract_trust = 1.0 - smoothstep(frame.render_distance * 0.25, frame.render_distance * 0.6, dist);
         if frame.in_water < 0.5 {
-            let bend = select(vec2<f32>(0.0), surface_normal.xz * 0.5 / max(length(input.position), 1.0), water_waves);
+            let bend = select(vec2<f32>(0.0), surface_normal.xz * 0.5 / max(dist, 1.0), water_waves);
             let probe = texel + vec2<i32>(bend * frame.resolution);
             let probe_depth = textureLoad(opaque_depth, clamp(probe, vec2<i32>(0), vec2<i32>(frame.resolution) - vec2<i32>(1)), 0);
             let own_depth = textureLoad(opaque_depth, texel, 0);
-            if probe_depth <= own_depth {
-                behind = textureLoad(opaque_color, probe, 0).rgb;
-            } else {
-                behind = textureLoad(opaque_color, texel, 0).rgb;
-            }
+            let seen = select(textureLoad(opaque_color, texel, 0).rgb, textureLoad(opaque_color, probe, 0).rgb, probe_depth <= own_depth);
+            behind = mix(input.tint.rgb * 0.9, seen, refract_trust);
         }
 
         // Water body: the vanilla tint over what lies behind, absorbed with
