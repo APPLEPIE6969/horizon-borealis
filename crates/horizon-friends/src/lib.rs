@@ -176,12 +176,15 @@ mod tests {
         let (mut ended, _) = l.accept().unwrap();
         drop(deadline(&kept, Duration::from_millis(100)).unwrap());
         let _running = deadline(&ended, Duration::from_millis(100)).unwrap();
-        // Read once the limit has passed: a read already blocked when it
-        // passes is not woken on Windows (shutdown doesn't cancel it there).
-        std::thread::sleep(Duration::from_millis(300));
+        // The read timeout must be set before the deadline fires: once the
+        // deadline has shut the socket down, setting SO_RCVTIMEO fails with
+        // EINVAL on macOS (Linux tolerates it).
         ended
             .set_read_timeout(Some(Duration::from_secs(2)))
             .unwrap();
+        // Read once the limit has passed: a read already blocked when it
+        // passes is not woken on Windows (shutdown doesn't cancel it there).
+        std::thread::sleep(Duration::from_millis(300));
         let started = Instant::now();
         match ended.read(&mut [0u8; 1]) {
             Ok(n) => assert_eq!(n, 0),

@@ -4,3 +4,6 @@ docs/launcher-commands.md text eol=lf
 docs/horizon-ctl-commands.md text eol=lf
 crates/horizon-theme/tokens.css text eol=lf
 docs/api/*-reference.md text eol=lf
+
+# Rust sources are scanned for exact byte patterns by hook tests: LF everywhere.
+*.rs text eol=lf
